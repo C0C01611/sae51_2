@@ -1,0 +1,29 @@
+version: '3'
+services:
+  logstash:
+    build: .
+    ports:
+      - "5044:5044"
+    depends_on:
+      - elasticsearch
+    environment:
+      - ES_HOST=elasticsearch
+      - ES_PORT=9200
+
+  elasticsearch:
+    image: elasticsearch:8.7.0
+    environment:
+      - xpack.monitoring.enabled=true
+      - xpack.graph.enabled=true
+    ports:
+      - "9200:9200"
+
+  grafana:
+    image: grafana/grafana:7.4.5
+    ports:
+      - "3000:3000"
+    depends_on:
+      - elasticsearch
+    environment:
+      - GF_SERVER_ROOT_URL=http://grafana:3000
+      - GF_SECURITY_ADMIN_PASSWORD=password
