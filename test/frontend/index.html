@@ -1,0 +1,27 @@
+	<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Metrics Dashboard</title>
+    <script>
+        async function fetchMetrics() {
+            const response = await fetch('/api/');
+            const data = await response.json();
+            document.getElementById('cpu').innerText = `CPU Usage: ${data.cpu.toFixed(2)}%`;
+            document.getElementById('memory').innerText = `Memory: ${(data.totalMem - data.freeMem) / (1024 * 1024)} MB / ${(data.totalMem / (1024 * 1024)).toFixed(2)} MB`;
+            document.getElementById('uptime').innerText = `Uptime: ${Math.floor(data.upTime / 3600)}h ${Math.floor((data.upTime % 3600) / 60)}m`;
+            document.getElementById('load').innerText = `Load Avg: ${data.loadAvg.join(', ')}`;
+        }
+        setInterval(fetchMetrics, 2000); // Mettre à jour toutes les 2 secondes
+    </script>
+</head>
+<body onload="fetchMetrics()">
+    <h1>System Metrics Dashboard</h1>
+    <p id="cpu"></p>
+    <p id="memory"></p>
+    <p id="uptime"></p>
+    <p id="load"></p>
+</body>
+</html>
+
