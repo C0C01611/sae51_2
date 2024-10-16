@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  node-app:
+    build:
+      context: ./node-app
+    container_name: node-app
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend  # Assure-toi que le contexte est correct
+    container_name: frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - node-app
+    restart: unless-stopped
+
