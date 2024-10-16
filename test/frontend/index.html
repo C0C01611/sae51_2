@@ -9,9 +9,8 @@
             const response = await fetch('/api/');
             const data = await response.json();
             document.getElementById('cpu').innerText = `Usage CPU: ${data.cpu.toFixed(2)}%`;
-            document.getElementById('memory').innerText = `Mémoire: ${(data.totalMem - data.freeMem) / (1024 * 1024)} MB / ${(data.totalMem / (1024 * 1024)).toFixed(2)} MB`;
-            document.getElementById('uptime').innerText = `Uptime: ${Math.floor(data.upTime / 3600)}h ${Math.floor((data.upTime % 3600) / 60)}m`;
-            document.getElementById('load').innerText = `Load Avg: ${data.loadAvg.join(', ')}`;
+            document.getElementById('memory').innerText = `Mémoire: ${(data.totalMem - data.freeMem) / (1024 * 1024)} Octets / ${(data.totalMem / (1024 * 1024)).toFixed(2)} Octets`;
+            document.getElementById('uptime').innerText = `Temps depuis allumage: ${Math.floor(data.upTime / 3600)}h ${Math.floor((data.upTime % 3600) / 60)}m`;
         }
         setInterval(fetchMetrics, 2000); // Mettre à jour toutes les 2 secondes
     </script>
