@@ -1,23 +1,118 @@
-	<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Importer Chart.js -->
     <script>
+        let cpuData = [];
+        let memoryData = [];
+        let uptimeData = [];
+        let labels = []; // Pour garder une trace du temps écoulé (en secondes)
+        let timeElapsed = 0; // Compteur de temps écoulé
+        let cpuChart, memoryChart, uptimeChart; // Déclaration des graphiques
+
         async function fetchMetrics() {
             const response = await fetch('/api/');
             const data = await response.json();
-            document.getElementById('cpu').innerText = `Usage CPU: ${data.cpu.toFixed(2)}%`;
-            document.getElementById('memory').innerText = `Mémoire: ${(data.totalMem - data.freeMem) / (1024 * 1024)} MB / ${(data.totalMem / (1024 * 1024)).toFixed(2)} MB`;
-            document.getElementById('uptime').innerText = `Uptime: ${Math.floor(data.upTime / 3600)}h ${Math.floor((data.upTime % 3600) / 60)}m`;
-            document.getElementById('load').innerText = `Load Avg: ${data.loadAvg.join(', ')}`;
+
+            // Ajouter le temps écoulé dans labels
+            labels.push(timeElapsed);
+            cpuData.push(data.cpu.toFixed(2));
+            memoryData.push(((data.totalMem - data.freeMem) / (1024 * 1024)).toFixed(2));
+            uptimeData.push((data.upTime / 3600).toFixed(2)); // Uptime en heures
+
+            // Incrémenter le compteur de temps
+            timeElapsed += 2; // Incrémente de 2 secondes à chaque appel (période de fetch)
+
+            if (labels.length > 10) { // Limiter le nombre de points de données affichés (ici 10)
+                labels.shift();
+                cpuData.shift();
+                memoryData.shift();
+                uptimeData.shift();
+            }
+
+            // Mettre à jour les graphiques
+            cpuChart.update();
+            memoryChart.update();
+            uptimeChart.update();
         }
-        setInterval(fetchMetrics, 2000); // Mettre à jour toutes les 2 secondes
+
+        window.onload = function() {
+            // Configuration des graphiques après le chargement de la page
+            const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+            cpuChart = new Chart(cpuCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Usage CPU (%)',
+                        data: cpuData,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'Temps (s)' } },
+                        y: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+
+            const memoryCtx = document.getElementById('memoryChart').getContext('2d');
+            memoryChart = new Chart(memoryCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Utilisation de la mémoire (Mo)',
+                        data: memoryData,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'Temps (s)' } },
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            const uptimeCtx = document.getElementById('uptimeChart').getContext('2d');
+            uptimeChart = new Chart(uptimeCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Uptime (heures)',
+                        data: uptimeData,
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'Temps (s)' } },
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            setInterval(fetchMetrics, 2000); // Appeler la fonction toutes les 2 secondes
+        };
     </script>
 </head>
-<body onload="fetchMetrics()">
-    <h1>Métrics systèmes</h1>
+<body>
+    <h1>Métriques Systèmes</h1>
+    <canvas id="cpuChart" width="400" height="200"></canvas>
+    <canvas id="memoryChart" width="400" height="200"></canvas>
+    <canvas id="uptimeChart" width="400" height="200"></canvas>
     <p id="cpu"></p>
     <p id="memory"></p>
     <p id="uptime"></p>

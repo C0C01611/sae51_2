@@ -1,7 +1,7 @@
 {
   "name": "system-metrics",
   "version": "1.0.0",
-  "description": "App for exposing system metrics",
+  "description": "App pour exposer les metrics systèmes",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
